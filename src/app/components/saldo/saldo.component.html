@@ -1,0 +1,179 @@
+<div class="container mt-5">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary m-0">Minhas Contas</h2>
+    <button class="btn btn-primary fw-bold" (click)="abrirModalCriarConta()">
+      + Nova Conta
+    </button>
+  </div>
+
+  <div *ngIf="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
+  <div *ngIf="mensagemErro" class="alert alert-danger">{{ mensagemErro }}</div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let conta of contas">
+      <div class="card shadow border-0 h-100">
+        
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">{{ conta.tipoConta }}</h5>
+            <small>Nº {{ conta.numeroConta }}</small>
+          </div>
+          <button class="btn btn-sm btn-info text-white fw-bold" (click)="abrirModalExtrato(conta)">
+            Extrato
+          </button>
+        </div>
+        
+        <div class="card-body text-center py-4">
+          <p class="text-muted mb-1">Saldo Atual</p>
+          <h2 class="display-6 fw-bold text-success">
+            R$ {{ conta.saldo.toFixed(2) }}
+          </h2>
+        </div>
+
+        <div class="px-3 pb-2 text-start" *ngIf="conta.cartoes && conta.cartoes.length > 0">
+          <p class="text-muted mb-2" style="font-size: 0.85rem; font-weight: bold;">MEUS CARTÕES</p>
+          
+          <div *ngFor="let cartao of conta.cartoes" class="bg-light border rounded p-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold" style="font-size: 0.95rem; letter-spacing: 1px;">
+                <i class="bi bi-credit-card me-1"></i> {{ cartao.numeroCartao }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 0.75rem;">
+              <span>
+                <strong>Tipo:</strong> {{ cartao.tipoCartao }}
+              </span>
+              <span>
+                <strong>Vencimento:</strong> {{ cartao.dataVencimento | date:'MM/yyyy' }}
+              </span>
+              <span class="badge bg-secondary">Via {{ cartao.via }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white border-0 d-grid gap-2 mb-2 px-3">
+          <button class="btn btn-outline-primary" (click)="abrirModal(conta, 'TRANSFERENCIA')">Transferência</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-success w-50" (click)="abrirModal(conta, 'DEPOSITO')">Depósito</button>
+            <button class="btn btn-outline-danger w-50" (click)="abrirModal(conta, 'SAQUE')">Saque</button>
+          </div>
+          
+          <hr class="my-2">
+          
+          <button class="btn btn-sm btn-dark w-100" (click)="abrirModalCriarCartao(conta)">
+            <i class="bi bi-credit-card"></i> + Criar Cartão
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="contas.length === 0" class="alert alert-warning text-center">
+    Você ainda não tem contas. Clique em "+ Nova Conta" para começar.
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" [ngClass]="{'show': modalAberto}" [style.display]="modalAberto ? 'block' : 'none'" style="background: rgba(0,0,0,0.6);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header text-white" 
+           [ngClass]="{
+             'bg-primary': tipoOperacao === 'TRANSFERENCIA' || tipoOperacao === 'CRIAR_CONTA', 
+             'bg-success': tipoOperacao === 'DEPOSITO', 
+             'bg-danger': tipoOperacao === 'SAQUE',
+             'bg-dark': tipoOperacao === 'CRIAR_CARTAO'
+           }">
+        <h5 class="modal-title">
+          <span *ngIf="tipoOperacao === 'CRIAR_CONTA'">Abrir Nova Conta</span>
+          <span *ngIf="tipoOperacao === 'CRIAR_CARTAO'">Criar Novo Cartão</span>
+          <span *ngIf="['SAQUE', 'DEPOSITO', 'TRANSFERENCIA'].includes(tipoOperacao)">Nova {{ tipoOperacao }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="fecharModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="mensagemSucesso" class="alert alert-success">{{ mensagemSucesso }}</div>
+        <div *ngIf="mensagemErro" class="alert alert-danger">{{ mensagemErro }}</div>
+        
+        <div *ngIf="contaOrigem && tipoOperacao !== 'CRIAR_CONTA'" class="alert alert-secondary p-2 mb-3 text-center">
+          <strong>Conta:</strong> {{ contaOrigem.tipoConta }} (Nº {{ contaOrigem.numeroConta }}) <br>
+          <small *ngIf="['SAQUE', 'DEPOSITO', 'TRANSFERENCIA'].includes(tipoOperacao)">Saldo: R$ {{ contaOrigem.saldo.toFixed(2) }}</small>
+        </div>
+
+        <form *ngIf="['SAQUE', 'DEPOSITO', 'TRANSFERENCIA'].includes(tipoOperacao)" (ngSubmit)="confirmarOperacao()" #operacaoForm="ngForm">
+          <div class="mb-3" *ngIf="tipoOperacao === 'TRANSFERENCIA'">
+            <label class="form-label">Conta de Destino</label>
+            <input type="text" class="form-control form-control-lg" name="contaDestino" [(ngModel)]="numeroContaDestino" required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Valor (R$)</label>
+            <input type="number" class="form-control form-control-lg" name="valor" [(ngModel)]="valor" required min="0.01">
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-lg btn-primary fw-bold" [disabled]="!operacaoForm.valid">Confirmar</button>
+            <button type="button" class="btn btn-light" (click)="fecharModal()">Cancelar</button>
+          </div>
+        </form>
+
+        <form *ngIf="tipoOperacao === 'CRIAR_CONTA'" (ngSubmit)="confirmarCriacaoConta()">
+          
+          <div class="mb-3">
+            <label class="form-label">Qual o tipo de conta você deseja abrir?</label>
+            <select class="form-select form-select-lg" name="novoTipoConta" [(ngModel)]="novoTipoConta">
+              <option value="Corrente">Conta Corrente</option>
+              <option value="Poupança">Conta Poupança</option>
+              <option value="Empresarial">Conta Empresarial</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Saldo Inicial (R$)</label>
+            <input type="number" class="form-control form-control-lg" name="novoSaldoInicial" [(ngModel)]="novoSaldoInicial" required min="0">
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-lg btn-primary fw-bold">Abrir Conta</button>
+            <button type="button" class="btn btn-light" (click)="fecharModal()">Cancelar</button>
+          </div>
+        </form>
+
+        <form *ngIf="tipoOperacao === 'CRIAR_CARTAO'" (ngSubmit)="confirmarCriacaoCartao()">
+          <div class="mb-4">
+            <label class="form-label">Qual a modalidade do cartão?</label>
+            <select class="form-select form-select-lg" name="novoTipoCartao" [(ngModel)]="novoTipoCartao">
+              <option value="Debito">Cartão de Débito</option>
+              <option value="Credito">Cartão de Crédito</option>
+            </select>
+            <small class="text-muted mt-2 d-block">O cartão será vinculado à {{ contaOrigem?.tipoConta }}.</small>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-lg btn-dark fw-bold">Solicitar Cartão</button>
+            <button type="button" class="btn btn-light" (click)="fecharModal()">Cancelar</button>
+          </div>
+        </form>
+
+        <div *ngIf="tipoOperacao === 'EXTRATO'">
+          <h4 class="text-primary mb-3">Extrato - {{ contaOrigem?.tipoConta }}</h4>
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of extrato">
+                <td>{{ t.dtcTransacao | date:'dd/MM/yy' }}</td>
+                <td>{{ t.selTransacao }}</td>
+                <td [class.text-danger]="t.selTransacao !== 'Depósito'" [class.text-success]="t.selTransacao === 'Depósito'">R$ {{ t.nroValor }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <button class="btn btn-secondary w-100" (click)="fecharModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
