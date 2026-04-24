@@ -37,4 +37,8 @@ export class AuthService {
   logout(): void {
     localStorage.clear();
   }
+
+  getUserName(): string | null {
+    return localStorage.getItem('cpf');
+  }
 }

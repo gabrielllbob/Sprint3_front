@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; // 👈 Adicionado para o *ngIf funcionar
+import { Component, OnInit } from '@angular/core'; // 1. Adicione OnInit aqui
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // 👈 Mantemos apenas o Router para navegar via código
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule], // 👈 Apenas o que o HTML da tela de Login realmente usa
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html'
 })
-export class LoginComponent {
+// 2. Adicione "implements OnInit" na classe
+export class LoginComponent implements OnInit {
   cpf = '';
   senha = '';
   mensagemErro = '';
@@ -19,6 +20,13 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+
+  // 3. Adicione este método
+  ngOnInit(): void {
+    // Sempre que a página de login carregar, força o logout
+    this.authService.logout();
+    console.log('Sessão limpa ao acessar o Login');
+  }
 
   entrar() {
     this.authService.fazerLogin(this.cpf, this.senha).subscribe({
