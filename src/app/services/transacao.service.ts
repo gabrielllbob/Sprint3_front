@@ -33,7 +33,6 @@ export class TransacaoService {
   }
 
   criarCartao(contaId: number, tipoCartao: string): Observable<any> {
-    // Bate na rota [POST] http://localhost:5168/api/Cartoes/criar
     const url = `${environment.apiUrl}/Cartoes/criar`;
     return this.http.post<any>(url, { contaId, tipoCartao });
   }

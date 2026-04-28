@@ -8,8 +8,7 @@ import { Cliente } from '../models/cliente'; // Verifique se esta pasta está co
 })
 export class ClienteService {
   
-  // URL da sua API (porta 5168 conforme seus logs anteriores)
-  private apiUrl = 'http://localhost:5168/api/Clientes'; 
+  private apiUrl = 'https://localhost:7151/api/Clientes'; 
 
   constructor(private http: HttpClient) { }
 
