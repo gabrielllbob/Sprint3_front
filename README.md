@@ -1,59 +1,99 @@
-# ProjectSprint
+# Projeto Full-Stack: API .NET e Frontend Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
+Este projeto apresenta uma solução full-stack completa, composta por uma API robusta desenvolvida em **.NET** e um frontend dinâmico construído com **Angular**. A integração entre as duas partes permite uma aplicação web moderna e eficiente.
 
-## Development server
+## 📋 Pré-requisitos
 
-To start a local development server, run:
+Para configurar e executar este projeto em sua máquina local, certifique-se de ter os seguintes softwares instalados:
 
-```bash
-ng serve
-```
+*   **[.NET SDK](https://dotnet.microsoft.com/download)**: Necessário para compilar e executar a API .NET.
+*   **[Node.js](https://nodejs.org/en/download/)**: Essencial para o desenvolvimento e execução do frontend Angular, incluindo o gerenciador de pacotes `npm`.
+*   **[MySQL Server](https://dev.mysql.com/downloads/mysql/)**: O banco de dados utilizado para persistência de dados da aplicação.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🚀 Repositórios do Projeto
 
-## Code scaffolding
+O projeto está dividido em dois repositórios distintos para a API e o Frontend:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+*   **API (.NET)**: [https://github.com/gabrielllbob/Sprint3](https://github.com/gabrielllbob/Sprint3)
+*   **Frontend (Angular)**: [https://github.com/gabrielllbob/Sprint3_front](https://github.com/gabrielllbob/Sprint3_front)
 
-```bash
-ng generate component component-name
-```
+## ⚙️ Configuração e Execução da API (.NET)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Configuração do Banco de Dados
 
-```bash
-ng generate --help
-```
+Por padrão, a API está configurada para se conectar a um servidor MySQL local na porta padrão. As credenciais e o nome do banco de dados são definidos via `user-secrets`.
 
-## Building
+### Passos para Iniciar a API
 
-To build the project run:
+1.  **Instalar a ferramenta `dotnet-ef` (se ainda não tiver):**
 
-```bash
-ng build
-```
+    ```bash
+    dotnet tool install --global dotnet-ef
+    ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+2.  **Configurar as variáveis de ambiente para o JWT e a string de conexão do banco de dados:**
 
-## Running unit tests
+    ```bash
+    dotnet user-secrets set "JwtSettings:SecretKey" "GabrielLopesLimaPrecisaDeUmaBoaOportunidadeDeEmprego"
+    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=bancofraude;User=root;Password=cimatec;"
+    ```
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+    > **Nota:** A `SecretKey` do JWT é crucial para a segurança da autenticação. Certifique-se de mantê-la segura e, em ambientes de produção, utilize um método mais robusto para gerenciamento de segredos.
 
-```bash
-ng test
-```
+3.  **Aplicar as migrações do banco de dados:**
 
-## Running end-to-end tests
+    ```bash
+    dotnet ef database update
+    ```
 
-For end-to-end (e2e) testing, run:
+4.  **Executar a API:**
 
-```bash
-ng e2e
-```
+    ```bash
+    dotnet run --launch-profile https
+    ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+    A API estará disponível em `https://localhost:7151`.
 
-## Additional Resources
+### Usuário Administrador Padrão
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Após a execução das migrações do banco de dados, um usuário administrador padrão é criado automaticamente. Utilize as seguintes credenciais para o primeiro acesso:
+
+*   **CPF/Login:** `00000000000`
+*   **Senha:** `123456`
+
+    > **Atenção:** Por questões de segurança, é altamente recomendável alterar a senha deste usuário após o primeiro login em um ambiente de produção.
+
+### Documentação da API (Swagger)
+
+Após iniciar a API, você pode acessar a documentação interativa do Swagger nos seguintes endereços:
+
+*   [http://localhost:5168/swagger/index.html](http://localhost:5168/swagger/index.html)
+*   [https://localhost:7151/swagger/index.html](https://localhost:7151/swagger/index.html)
+
+## 🌐 Configuração e Execução do Frontend (Angular)
+
+### Passos para Iniciar o Frontend
+
+1.  **Instalar as dependências do projeto:**
+
+    Navegue até o diretório do frontend e execute:
+
+    ```bash
+    npm install
+    ```
+
+2.  **Executar o servidor de desenvolvimento e abrir no navegador:**
+
+    ```bash
+    npx ng serve --open
+    ```
+
+    O aplicativo Angular será compilado e aberto automaticamente em seu navegador padrão, geralmente em `http://localhost:4200`.
+
+## ☁️ Versão Publicada do Frontend
+
+Uma versão do frontend também está disponível online, acessível através do seguinte link:
+
+*   [https://sprint3-front-beta.vercel.app/](https://sprint3-front-beta.vercel.app/)
+
+---
